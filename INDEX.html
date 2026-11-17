@@ -1,0 +1,604 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Quiz Generator - Animal World</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);
+    min-height:100vh;
+    padding:20px;
+    color:#252544;
+}
+
+.container{
+    max-width:850px;
+    margin:auto;
+}
+
+header{
+    text-align:center;
+    color:white;
+    padding:30px 10px;
+}
+
+header h1{
+    font-size:36px;
+    margin-bottom:12px;
+}
+
+header p{
+    font-size:17px;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 15px 40px #29205b45;
+    margin-bottom:20px;
+}
+
+.hero{
+    text-align:center;
+}
+
+.hero-icon{
+    font-size:75px;
+    margin-bottom:15px;
+    animation:bounce 2s infinite;
+}
+
+@keyframes bounce{
+    50%{transform:translateY(-10px)}
+}
+
+h2{
+    margin-bottom:15px;
+    color:#673ab7;
+}
+
+.info{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin:20px 0;
+}
+
+.info span{
+    background:#eeeaff;
+    color:#673ab7;
+    padding:10px 16px;
+    border-radius:30px;
+    font-weight:bold;
+}
+
+button{
+    border:none;
+    padding:14px 25px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    transform:scale(1.04);
+}
+
+.primary{
+    background:linear-gradient(90deg,#673ab7,#e040fb);
+    color:white;
+}
+
+.option{
+    display:block;
+    width:100%;
+    text-align:left;
+    margin:12px 0;
+    background:#f3f0ff;
+    color:#333;
+    border:2px solid transparent;
+}
+
+.option:hover{
+    background:#e5dcff;
+    border-color:#8055dc;
+}
+
+.option.correct{
+    background:#d1fae5;
+    border-color:#10b981;
+}
+
+.option.wrong{
+    background:#fee2e2;
+    border-color:#ef4444;
+}
+
+.option:disabled{
+    cursor:default;
+    opacity:1;
+}
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#eee;
+    border-radius:20px;
+    margin:18px 0;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#673ab7,#f093fb);
+    transition:.4s;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+    font-weight:bold;
+}
+
+.question{
+    font-size:22px;
+    line-height:1.5;
+    margin:22px 0;
+}
+
+.feedback{
+    padding:14px;
+    border-radius:12px;
+    margin-top:15px;
+    display:none;
+}
+
+.feedback.good{
+    background:#d1fae5;
+    color:#065f46;
+}
+
+.feedback.bad{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.next{
+    margin-top:18px;
+    display:none;
+}
+
+.result{
+    text-align:center;
+    display:none;
+}
+
+.result h2{
+    font-size:30px;
+}
+
+.score{
+    font-size:55px;
+    color:#673ab7;
+    font-weight:bold;
+    margin:20px;
+}
+
+.hidden{
+    display:none;
+}
+
+footer{
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+@media(max-width:600px){
+    header h1{font-size:27px}
+    .card{padding:20px}
+    .question{font-size:19px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <h1>🤖 AI QUIZ GENERATOR</h1>
+    <p>🐯 Animal World - जानवरों की दुनिया में आपका स्वागत है!</p>
+</header>
+
+<!-- HOME SCREEN -->
+
+<div class="card hero" id="home">
+
+    <div class="hero-icon">🦁</div>
+
+    <h2>क्या आप जानवरों के बारे में जानते हैं?</h2>
+
+    <p>
+        अपनी जानकारी को परखिए और जानवरों की दुनिया
+        के 10 मजेदार सवालों के जवाब दीजिए।
+    </p>
+
+    <div class="info">
+        <span>📚 10 प्रश्न</span>
+        <span>⏱️ 60 सेकंड</span>
+        <span>🏆 100 अंक</span>
+    </div>
+
+    <button class="primary" onclick="startQuiz()">
+        🚀 क्विज शुरू करें
+    </button>
+
+</div>
+
+<!-- QUIZ SCREEN -->
+
+<div class="card hidden" id="quiz">
+
+    <div class="top">
+        <span id="questionNumber">प्रश्न 1 / 10</span>
+        <span>⏱️ <span id="timer">60</span> सेकंड</span>
+        <span>⭐ स्कोर: <span id="score">0</span></span>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="question" id="questionText"></div>
+
+    <div id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <button class="primary next" id="nextBtn" onclick="nextQuestion()">
+        अगला प्रश्न ➜
+    </button>
+
+</div>
+
+<!-- RESULT SCREEN -->
+
+<div class="card result" id="result">
+
+    <div style="font-size:75px" id="resultEmoji">🏆</div>
+
+    <h2>क्विज पूरा हुआ!</h2>
+
+    <p>आपका अंतिम स्कोर</p>
+
+    <div class="score" id="finalScore">0/100</div>
+
+    <h3 id="resultMessage"></h3>
+
+    <p id="resultDetail" style="margin:15px"></p>
+
+    <button class="primary" onclick="restartQuiz()">
+        🔄 फिर से खेलें
+    </button>
+
+</div>
+
+<footer>
+    <p>❤️ Made with AI Quiz Generator | Animal World</p>
+</footer>
+
+</div>
+
+<script>
+
+// QUIZ QUESTIONS
+
+const questions = [
+
+{
+q:"दुनिया का सबसे बड़ा जानवर कौन सा है?",
+options:["हाथी","नीली व्हेल","जिराफ","शेर"],
+answer:1,
+explain:"नीली व्हेल पृथ्वी पर पाया जाने वाला सबसे बड़ा ज्ञात जानवर है।"
+},
+
+{
+q:"जंगल का राजा किसे कहा जाता है?",
+options:["बाघ","हाथी","शेर","भालू"],
+answer:2,
+explain:"शेर को आमतौर पर जंगल का राजा कहा जाता है।"
+},
+
+{
+q:"कौन सा जानवर सबसे ऊँचा होता है?",
+options:["ऊँट","जिराफ","घोड़ा","हाथी"],
+answer:1,
+explain:"जिराफ अपनी लंबी गर्दन और पैरों के कारण सबसे ऊँचा स्थलीय जानवर है।"
+},
+
+{
+q:"कौन सा जानवर रेगिस्तान में रहने के लिए प्रसिद्ध है?",
+options:["ऊँट","पेंगुइन","डॉल्फिन","मेंढक"],
+answer:0,
+explain:"ऊँट रेगिस्तान के वातावरण में रहने के लिए अनुकूलित होता है।"
+},
+
+{
+q:"दुनिया का सबसे तेज दौड़ने वाला स्थलीय जानवर कौन है?",
+options:["शेर","घोड़ा","चीता","हिरण"],
+answer:2,
+explain:"चीता जमीन पर दौड़ने वाला सबसे तेज जानवर है।"
+},
+
+{
+q:"कौन सा जानवर अपनी सूंड से पानी पीता है?",
+options:["गैंडा","हाथी","जिराफ","भालू"],
+answer:1,
+explain:"हाथी अपनी सूंड से पानी खींचकर अपने मुँह में डालता है।"
+},
+
+{
+q:"कौन सा पक्षी उड़ नहीं सकता?",
+options:["तोता","कबूतर","शुतुरमुर्ग","चील"],
+answer:2,
+explain:"शुतुरमुर्ग दुनिया का सबसे बड़ा जीवित पक्षी है और उड़ नहीं सकता।"
+},
+
+{
+q:"डॉल्फिन किस प्रकार का जीव है?",
+options:["मछली","स्तनधारी","सरीसृप","उभयचर"],
+answer:1,
+explain:"डॉल्फिन एक स्तनधारी जीव है और हवा में साँस लेती है।"
+},
+
+{
+q:"कौन सा जानवर रंग बदलने के लिए प्रसिद्ध है?",
+options:["गिरगिट","बिल्ली","कुत्ता","घोड़ा"],
+answer:0,
+explain:"गिरगिट अपनी त्वचा का रंग बदलने की क्षमता के लिए प्रसिद्ध है।"
+},
+
+{
+q:"पांडा मुख्य रूप से क्या खाता है?",
+options:["मछली","बाँस","मांस","घास"],
+answer:1,
+explain:"विशाल पांडा के भोजन का अधिकांश हिस्सा बाँस होता है।"
+}
+
+];
+
+// VARIABLES
+
+let currentQuestion=0;
+let totalScore=0;
+let timeLeft=60;
+let timerInterval=null;
+let answered=false;
+
+// START QUIZ
+
+function startQuiz(){
+
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("result").style.display="none";
+    document.getElementById("quiz").classList.remove("hidden");
+
+    currentQuestion=0;
+    totalScore=0;
+    timeLeft=60;
+
+    document.getElementById("score").innerText=0;
+    document.getElementById("timer").innerText=timeLeft;
+
+    clearInterval(timerInterval);
+
+    showQuestion();
+
+    timerInterval=setInterval(function(){
+
+        timeLeft--;
+
+        document.getElementById("timer").innerText=timeLeft;
+
+        if(timeLeft<=0){
+            clearInterval(timerInterval);
+            endQuiz();
+        }
+
+    },1000);
+
+}
+
+// SHOW QUESTION
+
+function showQuestion(){
+
+    answered=false;
+
+    const q=questions[currentQuestion];
+
+    document.getElementById("questionNumber").innerText=
+    "प्रश्न "+(currentQuestion+1)+" / "+questions.length;
+
+    document.getElementById("questionText").innerText=q.q;
+
+    document.getElementById("progressBar").style.width=
+    (currentQuestion/questions.length*100)+"%";
+
+    document.getElementById("feedback").style.display="none";
+
+    document.getElementById("nextBtn").style.display="none";
+
+    const optionsDiv=document.getElementById("options");
+
+    optionsDiv.innerHTML="";
+
+    q.options.forEach(function(option,index){
+
+        const btn=document.createElement("button");
+
+        btn.className="option";
+
+        btn.innerText=
+        ["🅰️ ","🅱️ ","🅲 ","🅳 "][index]+option;
+
+        btn.onclick=function(){
+            checkAnswer(index,btn);
+        };
+
+        optionsDiv.appendChild(btn);
+
+    });
+
+}
+
+// CHECK ANSWER
+
+function checkAnswer(selected,clickedButton){
+
+    if(answered)return;
+
+    answered=true;
+
+    const q=questions[currentQuestion];
+
+    const allButtons=document.querySelectorAll(".option");
+
+    allButtons.forEach(function(btn,index){
+
+        btn.disabled=true;
+
+        if(index===q.answer){
+            btn.classList.add("correct");
+        }
+
+    });
+
+    const feedback=document.getElementById("feedback");
+
+    if(selected===q.answer){
+
+        totalScore+=10;
+
+        document.getElementById("score").innerText=totalScore;
+
+        feedback.className="feedback good";
+
+        feedback.innerHTML=
+        "🎉 बिल्कुल सही जवाब! +10 अंक<br>"+q.explain;
+
+    }else{
+
+        clickedButton.classList.add("wrong");
+
+        feedback.className="feedback bad";
+
+        feedback.innerHTML=
+        "❌ आपका जवाब गलत है।<br>"+
+        "सही उत्तर: "+q.options[q.answer]+"<br>"+q.explain;
+
+    }
+
+    feedback.style.display="block";
+
+    document.getElementById("nextBtn").style.display="inline-block";
+
+    document.getElementById("nextBtn").innerText=
+    currentQuestion===questions.length-1?
+    "🏆 रिजल्ट देखें":"अगला प्रश्न ➜";
+
+}
+
+// NEXT QUESTION
+
+function nextQuestion(){
+
+    if(!answered)return;
+
+    currentQuestion++;
+
+    if(currentQuestion<questions.length){
+
+        showQuestion();
+
+    }else{
+
+        endQuiz();
+
+    }
+
+}
+
+// END QUIZ
+
+function endQuiz(){
+
+    clearInterval(timerInterval);
+
+    document.getElementById("quiz").classList.add("hidden");
+
+    document.getElementById("result").style.display="block";
+
+    document.getElementById("finalScore").innerText=
+    totalScore+"/100";
+
+    let message="";
+    let emoji="";
+
+    if(totalScore>=80){
+        message="🌟 शानदार! आप Animal Expert हैं!";
+        emoji="🏆";
+    }
+    else if(totalScore>=50){
+        message="👏 बहुत अच्छा! आपकी जानकारी अच्छी है।";
+        emoji="🥇";
+    }
+    else{
+        message="💪 अभ्यास करते रहिए, आप बेहतर बनेंगे!";
+        emoji="📚";
+    }
+
+    document.getElementById("resultMessage").innerText=message;
+
+    document.getElementById("resultEmoji").innerText=emoji;
+
+    document.getElementById("resultDetail").innerText=
+    "आपने "+questions.length+" में से "+
+    Math.round(totalScore/10)+" प्रश्नों के सही जवाब दिए।";
+
+    document.getElementById("progressBar").style.width="100%";
+
+}
+
+// RESTART
+
+function restartQuiz(){
+
+    document.getElementById("result").style.display="none";
+
+    document.getElementById("home").classList.remove("hidden");
+
+}
+
+</script>
+
+</body>
+</html>
